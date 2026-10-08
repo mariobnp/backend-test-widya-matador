@@ -17,6 +17,12 @@ export type UserResponse = {
   updated_at: string;
 };
 
+export type LoginResponse = {
+  "token-type": "Bearer";
+  access_token: string;
+  expires_in: number;
+};
+
 type UserResponseSource = Pick<
   User,
   "id" | "name" | "email" | "createdAt" | "updatedAt"
