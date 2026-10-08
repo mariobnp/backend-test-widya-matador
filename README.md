@@ -88,6 +88,12 @@ TypeScript, Prisma ORM 7, MySQL, JWT, Zod, dan Vitest.
 
 ## Dokumentasi API
 
+Swagger UI tersedia saat server aktif di `http://localhost:3000/api-docs`.
+Spesifikasi OpenAPI mencakup endpoint registrasi, login, current user, dan
+seluruh endpoint Items, termasuk request, response, validasi, serta autentikasi.
+Dokumen OpenAPI dalam format JSON tersedia di
+`http://localhost:3000/api-docs/openapi.json`.
+
 Base URL lokal: `http://localhost:3000/api/v1`
 
 Semua request dengan body harus menggunakan `Content-Type: application/json`.
@@ -220,6 +226,11 @@ Jalankan seluruh unit test:
 
 ```bash
 npm test
+```
+
+Jalankan aplikasi:
+```bash
+npm run dev
 ```
 
 Periksa tipe TypeScript:
