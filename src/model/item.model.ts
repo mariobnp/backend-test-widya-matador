@@ -50,16 +50,6 @@ export const countItems = (userId: string, search?: string) => {
   });
 };
 
-export const findItemById = (id: string, userId: string) => {
-  return prisma.item.findFirst({
-    where: {
-      id,
-      userId,
-    },
-    select: itemSelect,
-  });
-};
-
 export const updateItem = (
   id: string,
   userId: string,
