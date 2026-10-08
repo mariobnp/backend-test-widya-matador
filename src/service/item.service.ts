@@ -3,7 +3,6 @@ import {
   countItems,
   createItem,
   deleteItem,
-  findItemById,
   findItems,
   updateItem,
 } from "../model/item.model.js";
@@ -60,20 +59,6 @@ export const listItemsService = async (
       total_pages: Math.ceil(totalItems / limit),
     },
   };
-};
-
-export const getItemService = async (
-  userId: string,
-  itemId: string,
-): Promise<ItemResponse> => {
-  // cari barang yang dimiliki user yang sedang login
-  const item = await findItemById(itemId, userId);
-
-  if (!item) {
-    throw createResponseError(404, "Barang tidak ditemukan.");
-  }
-
-  return toItemResponse(item);
 };
 
 export const updateItemService = async (
