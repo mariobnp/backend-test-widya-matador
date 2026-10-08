@@ -5,10 +5,7 @@ const itemFields = {
     .string()
     .trim()
     .min(1, { message: "Nama barang wajib diisi." })
-    .max(100, { message: "Nama barang maksimal 100 karakter." })
-    .refine((value) => /\p{L}/u.test(value), {
-      message: "Nama barang harus mengandung minimal satu huruf.",
-    }),
+    .max(100, { message: "Nama barang maksimal 100 karakter." }),
   description: z
     .string()
     .min(1, { message: "Deskripsi barang wajib diisi." })
