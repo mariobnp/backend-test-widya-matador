@@ -12,6 +12,7 @@ const itemSelect = {
 };
 
 export const createItem = (userId: string, data: CreateItemRequest) => {
+  // simpan barang dengan pemiliknya
   return prisma.item.create({
     data: {
       ...data,
@@ -25,6 +26,7 @@ export const findItems = (
   userId: string,
   options: { skip: number; take: number; search?: string },
 ) => {
+  // ambil daftar barang milik user
   return prisma.item.findMany({
     where: {
       userId,
@@ -42,6 +44,7 @@ export const findItems = (
 };
 
 export const countItems = (userId: string, search?: string) => {
+  // hitung barang milik user sesuai pencarian
   return prisma.item.count({
     where: {
       userId,
@@ -55,6 +58,7 @@ export const updateItem = (
   userId: string,
   data: UpdateItemRequest,
 ) => {
+  // perbarui barang milik user
   return prisma.item.update({
     where: {
       id,
@@ -66,6 +70,7 @@ export const updateItem = (
 };
 
 export const deleteItem = (id: string, userId: string) => {
+  // hapus barang milik user
   return prisma.item.delete({
     where: {
       id,
