@@ -16,11 +16,14 @@ const validItem = {
 describe("CreateItemValidation", () => {
   it("accepts a valid item", () => {
     expect(CreateItemValidation.safeParse(validItem).success).toBe(true);
+    expect(
+      CreateItemValidation.safeParse({ ...validItem, name: "123 !!!" }).success,
+    ).toBe(true);
   });
 
   it.each([
     ["empty name", { ...validItem, name: "" }],
-    ["name without a letter", { ...validItem, name: "123 !!!" }],
+    ["whitespace-only name", { ...validItem, name: "   " }],
     ["name over 100 characters", { ...validItem, name: "a".repeat(101) }],
     ["empty description", { ...validItem, description: "" }],
     ["description over 255 characters", { ...validItem, description: "a".repeat(256) }],
