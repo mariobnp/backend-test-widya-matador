@@ -16,7 +16,7 @@ export const registerController = async (
 
     res.status(201).json({
       success: true,
-      message: "Registrasi Berhasil.",
+      message: "Registrasi berhasil.",
       data: response,
     });
   } catch (error) {

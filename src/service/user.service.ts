@@ -1,6 +1,11 @@
 import { createResponseError } from "../error/response.error.js";
 import { createUser, findUserByEmail } from "../model/user.model.js";
-import { type RegisterRequest, toUserResponse, type UserResponse } from "../types/user.type.js";
+import {
+  type RegisterRequest,
+  toUserResponse,
+  type UserResponse,
+} from "../types/user.type.js";
+import { Prisma } from "../generated/prisma/client.js";
 import bcrypt from "bcrypt";
 
 export const registerService = async (
@@ -18,11 +23,23 @@ export const registerService = async (
   const hashedPassword = await bcrypt.hash(request.password, 10);
 
   // create user di database
-  const user = await createUser({
-    name: request.name,
-    email: request.email,
-    password: hashedPassword
-  });
+  let user;
+  try {
+    user = await createUser({
+      name: request.name,
+      email: request.email,
+      password: hashedPassword,
+    });
+  } catch (error) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2002"
+    ) {
+      throw createResponseError(409, "Email sudah terdaftar.");
+    }
 
-  return toUserResponse(user)
+    throw error;
+  }
+
+  return toUserResponse(user);
 };

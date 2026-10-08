@@ -2,9 +2,9 @@ import "dotenv/config";
 import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 import { PrismaClient } from "../generated/prisma/client.js";
 
-function requiredEnv(name: string): string {
+function requiredEnv(name: string, allowEmpty = false): string {
   const value = process.env[name];
-  if (!value) {
+  if (value === undefined || (!allowEmpty && value.length === 0)) {
     throw new Error(`Missing required environment variable: ${name}`);
   }
   return value;
@@ -19,7 +19,8 @@ const adapter = new PrismaMariaDb({
   host: requiredEnv("MYSQL_HOST"),
   port,
   user: requiredEnv("MYSQL_USER"),
-  password: requiredEnv("MYSQL_PASSWORD"),
+  password: requiredEnv("MYSQL_PASSWORD", true),
+  database: requiredEnv("MYSQL_DATABASE"),
   connectionLimit: 5,
 });
 
