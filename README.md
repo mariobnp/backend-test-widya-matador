@@ -1,44 +1,50 @@
 # Sistem Manajemen Inventaris Barang
 
-REST API untuk registrasi dan autentikasi pengguna serta pengelolaan barang
-milik masing-masing pengguna. Aplikasi dibuat menggunakan Node.js, Express,
-TypeScript, Prisma ORM 7, MySQL, JWT, Zod, dan Vitest.
+Sistem Manajemen Inventaris Barang adalah REST API untuk mengelola data barang milik setiap pengguna. Pengguna bisa membuat akun, login, melihat profil, dan mengelola barang miliknya sendiri.
+
+Project ini dibuat menggunakan Node.js, Express, TypeScript, Prisma ORM, MySQL, JWT, Zod, dan Vitest.
 
 ## Fitur
 
-- Registrasi dan login dengan password yang di-hash menggunakan bcrypt.
-- Autentikasi JWT untuk endpoint profil dan barang.
-- CRUD barang yang dibatasi berdasarkan pemiliknya.
-- Pencarian barang berdasarkan nama dan pagination.
-- Validasi request sebelum data diteruskan ke database.
+* Registrasi dan login pengguna.
+* Password disimpan dalam bentuk hash menggunakan bcrypt.
+* Autentikasi menggunakan JWT untuk endpoint yang membutuhkan login.
+* CRUD barang, mulai dari menambah, melihat, memperbarui, hingga menghapus barang.
+* Setiap pengguna hanya bisa mengakses barang miliknya sendiri.
+* Pencarian barang berdasarkan nama dan pagination untuk membagi hasil ke beberapa halaman.
+* Validasi request sebelum diproses lebih lanjut.
 
-## Teknologi
+## Teknologi yang Digunakan
 
-- Node.js dan Express 5
-- TypeScript
-- MySQL dengan Prisma ORM 7 dan MariaDB driver adapter
-- JWT (`jsonwebtoken`) dan bcrypt
-- Zod untuk validasi
-- Vitest untuk unit test
+* **Node.js dan Express 5** untuk menjalankan server dan menangani request API.
+* **TypeScript** untuk membantu memeriksa tipe data.
+* **MySQL dan Prisma ORM 7** untuk menyimpan dan mengelola data.
+* **MariaDB driver adapter** untuk menghubungkan Prisma dengan database.
+* **JWT dan bcrypt** untuk autentikasi dan keamanan password.
+* **Zod** untuk memvalidasi input.
+* **Vitest** untuk menjalankan unit test.
 
-## Menjalankan secara lokal
+## Menjalankan Aplikasi Secara Lokal
 
 ### Prasyarat
 
-- Node.js dan npm
-- Server MySQL yang berjalan
-- Database MySQL kosong untuk development
+Sebelum menjalankan aplikasi, pastikan sudah tersedia:
 
-### Setup
+* Node.js dan npm.
+* Server MySQL yang sedang berjalan.
+* Database MySQL kosong untuk development.
 
-1. Clone repository dan masuk ke direktori proyek.
-2. Pasang dependency:
+### Langkah instalasi
+
+1. Clone repository, lalu masuk ke folder project.
+
+2. Instal dependency:
 
    ```bash
    npm ci
    ```
 
-3. Buat database development di MySQL, misalnya:
+3. Buat database di MySQL. Contohnya:
 
    ```sql
    CREATE DATABASE backend_test
@@ -46,8 +52,9 @@ TypeScript, Prisma ORM 7, MySQL, JWT, Zod, dan Vitest.
      COLLATE utf8mb4_unicode_ci;
    ```
 
-4. Salin `.env.example` menjadi `.env`, lalu isi konfigurasi MySQL dan
-   `JWT_SECRET` dengan nilai milik Anda. Contoh format:
+4. Salin file `.env.example` menjadi `.env`, kemudian sesuaikan konfigurasi database dan JWT.
+
+   Contoh isi `.env`:
 
    ```env
    DATABASE_URL="mysql://<USER>:<PASSWORD>@127.0.0.1:3306/backend_test"
@@ -59,19 +66,19 @@ TypeScript, Prisma ORM 7, MySQL, JWT, Zod, dan Vitest.
    JWT_SECRET="<secret-acak-minimal-32-karakter>"
    ```
 
-   `DATABASE_URL` digunakan oleh Prisma CLI, sedangkan aplikasi memakai
-   `MYSQL_*` melalui adapter MariaDB. Arahkan keduanya ke database yang sama.
-   Jika password database mengandung karakter khusus di URL, lakukan
-   URL-encoding. Jangan commit atau membagikan `.env` dan jangan gunakan
-   kredensial development untuk produksi.
+   `DATABASE_URL` digunakan oleh Prisma CLI, sedangkan konfigurasi `MYSQL_*` digunakan oleh aplikasi melalui MariaDB adapter. Pastikan semuanya mengarah ke database yang sama.
 
-   Untuk menghasilkan `JWT_SECRET` acak, jalankan:
+   Jika password MySQL mengandung karakter khusus, karakter tersebut perlu di-encode dengan benar pada `DATABASE_URL`.
+
+   Untuk membuat secret JWT secara acak, jalankan:
 
    ```bash
    node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
    ```
 
-5. Terapkan migrasi dan generate Prisma Client:
+   Jangan membagikan file `.env` atau memasukkan kredensial ke repository.
+
+5. Jalankan migrasi database dan generate Prisma Client:
 
    ```bash
    npx prisma migrate deploy
@@ -84,28 +91,36 @@ TypeScript, Prisma ORM 7, MySQL, JWT, Zod, dan Vitest.
    npm run dev
    ```
 
-   Server berjalan pada `http://localhost:3000`.
+   Secara default, aplikasi berjalan di `http://localhost:3000`.
 
 ## Dokumentasi API
 
-Swagger UI tersedia saat server aktif di `http://localhost:3000/api-docs`.
-Spesifikasi OpenAPI mencakup endpoint registrasi, login, current user, dan
-seluruh endpoint Items, termasuk request, response, validasi, serta autentikasi.
-Dokumen OpenAPI dalam format JSON tersedia di
-`http://localhost:3000/api-docs/openapi.json`.
+Dokumentasi API tersedia melalui Swagger UI setelah server dijalankan:
 
-Base URL lokal: `http://localhost:3000/api/v1`
+* Swagger UI: `http://localhost:3000/api-docs`
+* OpenAPI JSON: `http://localhost:3000/api-docs/openapi.json`
 
-Semua request dengan body harus menggunakan `Content-Type: application/json`.
-Endpoint Items dan `GET /users/me` memerlukan header:
+Base URL API lokal:
+
+`http://localhost:3000/api/v1`
+
+Request yang memiliki body harus menggunakan header berikut:
+
+```http
+Content-Type: application/json
+```
+
+Endpoint Items dan `GET /users/me` membutuhkan token JWT pada header:
 
 ```http
 Authorization: Bearer <access_token>
 ```
 
-### Registrasi
+### 1. Registrasi
 
 `POST /auth/register`
+
+Contoh request:
 
 ```json
 {
@@ -115,12 +130,13 @@ Authorization: Bearer <access_token>
 }
 ```
 
-Berhasil: `201 Created`. Email yang sudah dipakai menghasilkan `409 Conflict`;
-input yang tidak valid menghasilkan `400 Bad Request`.
+Jika berhasil, API mengembalikan `201 Created`. Email yang sudah digunakan menghasilkan `409 Conflict`, sedangkan input yang tidak valid menghasilkan `400 Bad Request`.
 
-### Login
+### 2. Login
 
 `POST /auth/login`
+
+Contoh request:
 
 ```json
 {
@@ -129,7 +145,9 @@ input yang tidak valid menghasilkan `400 Bad Request`.
 }
 ```
 
-Berhasil: `200 OK`, dengan access token yang berlaku 3600 detik:
+Jika berhasil, API mengembalikan `200 OK` beserta token JWT yang berlaku selama 3600 detik.
+
+Contoh response:
 
 ```json
 {
@@ -143,18 +161,23 @@ Berhasil: `200 OK`, dengan access token yang berlaku 3600 detik:
 }
 ```
 
-Email atau password yang salah menghasilkan `401 Unauthorized`.
+Jika email atau password salah, API mengembalikan `401 Unauthorized`.
 
-### Current user
+### 3. Melihat profil pengguna
 
 `GET /users/me`
 
-Memerlukan autentikasi. Berhasil: `200 OK` beserta data user tanpa password.
-Token tidak ada atau tidak valid menghasilkan `401 Unauthorized`.
+Endpoint ini membutuhkan token JWT yang valid. Jika berhasil, API mengembalikan data pengguna tanpa password.
 
-### Membuat barang
+Jika token tidak ada atau tidak valid, API mengembalikan `401 Unauthorized`.
 
-`POST /items` (memerlukan autentikasi)
+### 4. Menambahkan barang
+
+`POST /items`
+
+Endpoint ini membutuhkan autentikasi.
+
+Contoh request:
 
 ```json
 {
@@ -165,29 +188,35 @@ Token tidak ada atau tidak valid menghasilkan `401 Unauthorized`.
 }
 ```
 
-Berhasil: `201 Created`.
+Jika berhasil, API mengembalikan `201 Created`.
 
-### Melihat daftar barang
+### 5. Melihat daftar barang
 
-`GET /items` (memerlukan autentikasi)
+`GET /items`
 
-Query parameter opsional:
+Endpoint ini membutuhkan autentikasi.
 
-| Parameter | Keterangan | Default |
-| --- | --- | --- |
-| `page` | Nomor halaman, bilangan bulat positif | `1` |
-| `limit` | Jumlah barang per halaman, bilangan bulat positif | `10` |
-| `search` | Filter nama barang | Tidak ada filter |
+Terdapat beberapa query parameter yang bisa digunakan:
 
-Contoh: `GET /items?page=1&limit=10&search=Arabika`
+| Parameter | Keterangan                                               | Default      |
+| --------- | -------------------------------------------------------- | ------------ |
+| `page`    | Nomor halaman, berupa bilangan bulat positif             | `1`          |
+| `limit`   | Jumlah barang per halaman, berupa bilangan bulat positif | `10`         |
+| `search`  | Mencari barang berdasarkan nama                          | Tanpa filter |
 
-Respons memuat array `data` dan objek `pagination` dengan `page`, `limit`,
-`total_items`, dan `total_pages`.
+Contoh request:
 
-### Memperbarui barang
+`GET /items?page=1&limit=10&search=Arabika`
 
-`PUT /items/:id` (memerlukan autentikasi). `id` harus berupa UUID dan body
-memuat semua field barang:
+Response berisi daftar barang pada properti `data` dan informasi pagination pada properti `pagination`, seperti nomor halaman, jumlah data per halaman, total barang, dan total halaman.
+
+### 6. Memperbarui barang
+
+`PUT /items/:id`
+
+Endpoint ini membutuhkan autentikasi. Parameter `id` harus berupa UUID, dan request body harus memuat semua field barang.
+
+Contoh request:
 
 ```json
 {
@@ -198,58 +227,57 @@ memuat semua field barang:
 }
 ```
 
-Berhasil: `200 OK`. Barang yang tidak ada atau bukan milik user menghasilkan
-`404 Not Found`.
+Jika berhasil, API mengembalikan `200 OK`. Jika barang tidak ditemukan atau bukan milik pengguna yang sedang login, API mengembalikan `404 Not Found`.
 
-### Menghapus barang
+### 7. Menghapus barang
 
-`DELETE /items/:id` (memerlukan autentikasi). `id` harus berupa UUID.
-Berhasil: `200 OK`. Barang yang tidak ada atau bukan milik user menghasilkan
-`404 Not Found`.
+`DELETE /items/:id`
+
+Endpoint ini membutuhkan autentikasi dan `id` berupa UUID.
+
+Jika berhasil, API mengembalikan `200 OK`. Jika barang tidak ditemukan atau bukan milik pengguna yang sedang login, API mengembalikan `404 Not Found`.
 
 ### Aturan validasi barang
 
-- Nama dan deskripsi wajib diisi; panjang maksimum masing-masing 100 dan 255
-  karakter.
-- Stok harus berupa bilangan bulat nonnegatif.
-- Harga harus berupa angka nonnegatif dengan maksimum dua angka desimal dan
-  sesuai kapasitas kolom `DECIMAL(10, 2)`.
-- Nilai harga pada respons API dikirim sebagai JSON number.
-- Setiap user hanya dapat melihat, memperbarui, atau menghapus barang miliknya.
+* Nama dan deskripsi wajib diisi, dengan panjang maksimum masing-masing 100 dan 255 karakter.
+* Stok harus berupa bilangan bulat yang tidak boleh negatif.
+* Harga tidak boleh negatif, maksimal memiliki dua angka desimal, dan harus sesuai dengan kapasitas kolom `DECIMAL(10, 2)`.
+* Harga pada response API dikirim sebagai JSON number.
+* Setiap pengguna hanya bisa melihat, memperbarui, dan menghapus barang miliknya sendiri.
 
-Request tidak valid menghasilkan `400 Bad Request`; request tanpa token yang
-valid menghasilkan `401 Unauthorized`.
+Request yang tidak valid menghasilkan `400 Bad Request`, sedangkan request ke endpoint yang dilindungi tanpa token valid menghasilkan `401 Unauthorized`.
 
 ## Pengujian
 
-Jalankan seluruh unit test:
+Untuk menjalankan unit test:
 
 ```bash
 npm test
 ```
 
-Jalankan aplikasi:
+Untuk menjalankan aplikasi:
+
 ```bash
 npm run dev
 ```
 
-Periksa tipe TypeScript:
+Untuk memeriksa tipe TypeScript:
 
 ```bash
 npx tsc --noEmit
 ```
 
-## Jawaban pertanyaan take-home test
+## Jawaban Pertanyaan Take-Home Test
 
-### 1. Alur request dan pemisahan tanggung jawab
+### 1. Bagaimana alur request dan pembagian tugas setiap bagian?
 
-Alur umum request adalah:
+Secara umum, alur request pada aplikasi ini adalah:
 
 ```text
 Client
   -> Express JSON parser
   -> Router
-  -> Middleware autentikasi (untuk endpoint yang dilindungi)
+  -> Middleware autentikasi (jika diperlukan)
   -> Controller dan validasi Zod
   -> Service
   -> Model
@@ -257,52 +285,38 @@ Client
   -> MySQL
 ```
 
-Router memilih endpoint dan middleware autentikasi memverifikasi Bearer token
-sebelum handler berjalan. Controller membaca request, memvalidasi body, query,
-atau parameter, lalu membentuk status dan struktur response. Service menangani
-aturan bisnis, seperti kepemilikan barang dan pagination. Model berisi operasi
-Prisma yang mengakses database.
+Saya membagi kode menjadi beberapa bagian supaya setiap bagian memiliki tugas yang jelas.
 
-Pemisahan ini menjaga setiap lapisan memiliki tanggung jawab yang jelas,
-memudahkan pengujian tanpa database nyata, serta membuat perubahan aturan bisnis
-atau penyimpanan tidak perlu mencampur kode HTTP dan query database. Pada fitur
-ini validasi dilakukan di controller melalui helper Zod; autentikasi berjalan
-lebih dahulu pada route yang dilindungi. Registrasi dan login tidak memerlukan
-middleware autentikasi.
+Router menentukan endpoint yang akan dijalankan. Untuk endpoint yang membutuhkan login, middleware akan memeriksa token terlebih dahulu.
 
-### 2. Keamanan dan penyimpanan JWT
+Controller menangani request dari pengguna, memvalidasi input menggunakan Zod, dan menentukan response yang dikirim kembali.
 
-Untuk aplikasi web di browser, pilihan yang lebih aman terhadap pencurian token
-melalui JavaScript adalah cookie `HttpOnly`, `Secure`, dan `SameSite` yang
-sesuai kebutuhan. `HttpOnly` mencegah JavaScript membaca token, `Secure`
-membatasi pengiriman ke HTTPS, dan `SameSite` membantu mengurangi risiko CSRF.
-Jika cookie digunakan untuk autentikasi, tetap tinjau perlindungan CSRF dan
-konfigurasi domain/CORS.
+Service berisi proses utama aplikasi, seperti registrasi, login, dan pemeriksaan kepemilikan barang. Model digunakan untuk menjalankan operasi database melalui Prisma.
 
-`localStorage` mudah digunakan, tetapi dapat dibaca oleh JavaScript sehingga
-serangan XSS dapat mencuri token. Bila token tetap dikirim dalam response JSON
-seperti kontrak API saat ini, client browser sebaiknya menyimpannya sesingkat
-mungkin, misalnya hanya di memori, dan tidak menaruhnya di `localStorage` tanpa
-memahami risikonya. Implementasi backend saat ini mengembalikan token di JSON;
-untuk beralih ke cookie perlu menambahkan pengiriman `Set-Cookie` pada backend.
+Dengan pembagian ini, kode lebih mudah dibaca dan diperbaiki karena proses HTTP, aturan aplikasi, dan query database tidak dicampur menjadi satu. Selain itu, unit test bisa dibuat dengan mengganti dependency tertentu menggunakan mock.
 
-### 3. Penanganan konkurensi saat mengurangi stok
+### 2. Bagaimana cara menjaga keamanan token JWT?
 
-Jangan membaca stok terlebih dahulu di aplikasi, lalu menulis hasil
-pengurangannya berdasarkan nilai lama. Dua request bersamaan bisa sama-sama
-membaca stok `1` dan kemudian keduanya menyimpan `0`, sehingga salah satu
-pemesanan tampak berhasil walaupun stok sudah habis.
+JWT digunakan untuk memastikan bahwa request ke endpoint yang dilindungi berasal dari pengguna yang memiliki token valid.
 
-Pengurangan stok harus dilakukan atomik di database dengan syarat stok saat ini
-setidaknya sebesar jumlah yang diminta. Dengan Prisma, pola yang dapat digunakan
-adalah `updateMany` dengan filter `id`, `userId`, dan `stock: { gte: quantity }`,
-serta operasi atomik `stock: { decrement: quantity }`. Jika `count` hasil update
-adalah `0`, barang tidak ada, bukan milik user, atau stok tidak mencukupi dan
-request harus ditolak. Jika perubahan stok merupakan bagian dari transaksi
-bisnis lain, jalankan operasi terkait dalam transaksi database yang sama.
-Dengan stok awal `1`, hanya satu request bersamaan yang dapat mengubahnya; yang
-lainnya gagal dan stok tidak menjadi negatif.
+Dalam aplikasi ini, token dikirim melalui response login dan digunakan pada header `Authorization` dengan format `Bearer`.
 
-Saat ini API yang didefinisikan menyediakan CRUD penuh barang, bukan endpoint
-khusus untuk pemesanan atau pengurangan stok secara bersamaan. Pola atomik
-tersebut perlu diterapkan ketika operasi pengurangan stok ditambahkan.
+Untuk aplikasi web, ada beberapa cara menyimpan token. `localStorage` mudah digunakan, tetapi token yang tersimpan di sana dapat dibaca oleh JavaScript jika terjadi serangan XSS.
+
+Salah satu pilihan adalah menggunakan cookie `HttpOnly`, `Secure`, dan `SameSite` dengan konfigurasi yang sesuai. Namun, penggunaan cookie juga perlu mempertimbangkan perlindungan CSRF.
+
+Pada implementasi backend saat ini, token masih dikirim dalam response JSON. Jika ingin menggunakan cookie, backend perlu diubah agar dapat mengirim token melalui header `Set-Cookie` dan menangani autentikasi menggunakan cookie tersebut.
+
+### 3. Bagaimana jika beberapa request mengurangi stok barang secara bersamaan?
+
+Misalnya, stok barang hanya tersisa satu, tetapi dua request datang hampir bersamaan untuk mengambil barang tersebut.
+
+Jika aplikasi hanya membaca stok terlebih dahulu lalu menguranginya secara terpisah, kedua request berpotensi membaca nilai stok yang sama. Hal ini bisa menyebabkan stok menjadi tidak sesuai.
+
+Salah satu cara untuk menghindarinya adalah melakukan pengurangan stok langsung di database dengan operasi atomik dan kondisi bahwa stok harus cukup.
+
+Dengan Prisma, salah satu pendekatan yang bisa digunakan adalah `updateMany` dengan filter `id`, `userId`, dan `stock: { gte: quantity }`, lalu mengurangi stok menggunakan `decrement`.
+
+Jika jumlah data yang berhasil diperbarui adalah `0`, berarti kondisi update tidak terpenuhi. Aplikasi kemudian perlu menangani kondisi tersebut, misalnya dengan menolak permintaan karena stok tidak cukup atau barang tidak ditemukan.
+
+Saat ini, API saya berfokus pada CRUD barang dan belum memiliki endpoint khusus untuk pemesanan atau pengurangan stok secara bersamaan. Karena itu, pendekatan tersebut merupakan hal yang perlu diterapkan jika fitur transaksi stok ditambahkan nantinya.
